@@ -1,0 +1,162 @@
+Full Project Checklist (Phases + Steps + Descriptions)
+
+01. Concept & Domain Definition
+
+      [ ] Clarify app purpose  
+            - Define what the app is, who it serves, and why it exists.
+      [ ] Identify primary users  
+            - Determine who will create games, join games, or play solo with AI.
+      [ ] Define user flows  
+            - Outline how users create a game, join a game, and progress through gameplay.
+      [ ] Establish domain concepts  
+            - Identify core objects like players, hands, cards, rounds, and game states.
+      [ ] Define core interactions  
+            - Describe how players act, how turns progress, and how the game advances.
+      [ ] Identify constraints and assumptions  
+            - Capture rules such as max 5 players, no accounts, serverless limitations, etc.
+      [ ] Draft initial feature list  
+            - List the essential features needed for a playable version.
+      [ ] Determine success criteria  
+            - Define what “MVP complete” means.
+      [ ] Validate scope  
+            - Ensure the project is realistic and aligned with goals.
+
+02. System Architecture Planning
+
+      [ ] Choose frontend framework  
+            - Decide on React, Svelte, Vue, or another SPA approach.
+      [ ] Choose backend structure  
+            - Decide between API Gateway or Lambda Function URLs.
+      [ ] Define DynamoDB table design  
+            - Choose partition keys, sort keys, and item structure.
+      [ ] Define API shape  
+            - List endpoints, payloads, and response formats.
+      [ ] Choose IaC tool  
+            - CDK, SAM, or Serverless Framework.
+      [ ] Plan deployment strategy  
+            - How frontend and backend will be deployed and versioned.
+      [ ] Plan authentication (if any)  
+            - Even if minimal, decide how players identify themselves.
+      [ ] Plan environment separation  
+            - Dev, staging, and production setups.
+
+03. Project Scaffolding
+
+      [ ] Initialize frontend project  
+            - Create the base project with routing.
+      [ ] Deploy frontend “hello world”  
+            - Confirm hosting pipeline works.
+      [ ] Create initial Lambda function  
+            - A simple handler to verify backend execution.
+      [ ] Create API endpoint  
+            - Expose the Lambda to the frontend.
+      [ ] Connect Lambda to DynamoDB  
+            - Ensure permissions and connectivity work.
+      [ ] Deploy backend “hello world”  
+            - Confirm backend pipeline works.
+      [ ] Verify end‑to‑end connectivity  
+            - Frontend → API → Lambda → DynamoDB → back.
+
+04. Type & Schema Modeling
+
+      [ ] Define domain types  
+            - Player, Game, Hand, Card, Round, etc.
+      [ ] Define API request/response types  
+            - For creating games, joining games, taking actions.
+      [ ] Define DynamoDB item schemas  
+            - How game state and player state are stored.
+      [ ] Define validation rules  
+            - Required fields, allowed values, constraints.
+      [ ] Define error shapes  
+            - Standardized error responses.
+      [ ] Document type relationships  
+            - How objects connect and depend on each other.
+
+05. Backend Core Implementation
+
+      [ ] Define core domain objects  
+            - Implement the data structures and helpers.
+      [ ] Implement state transitions  
+            - How the game moves from lobby → active → scoring → finished.
+      [ ] Implement DynamoDB read/write logic  
+            - CRUD operations for game and player state.
+      [ ] Implement core Lambda functions  
+            - CreateGame, JoinGame, StartGame, PlayCard, etc.
+      [ ] Add input validation  
+            - Ensure requests are safe and correct.
+      [ ] Add error handling  
+            - Graceful failures with clear messages.
+      [ ] Add logging and metrics  
+            - Useful for debugging and monitoring.
+      [ ] Write backend tests  
+            - Unit tests for logic and transitions.
+      [ ] Add local development tooling  
+            - Scripts, mocks, or local DynamoDB if needed.
+
+06. Frontend Core Implementation
+
+      [ ] Create core pages  
+            - Home, Create Game, Join Game, Lobby, Game Table.
+      [ ] Build UI components  
+            - Buttons, card components, player list, score display.
+      [ ] Implement global state management  
+            - Store user name, game ID, and game state.
+      [ ] Connect frontend to backend APIs  
+            - Fetch game state, send actions, handle responses.
+      [ ] Add client-side validation  
+            - Prevent invalid inputs before hitting the backend.
+      [ ] Add loading and error states  
+            - Improve UX during network operations.
+      [ ] Add frontend tests  
+            - Component tests and flow tests.
+
+07. Integration & Iteration
+
+      [ ] Test full user flows  
+            - Create → Join → Lobby → Play → Finish.
+      [ ] Fix mismatched types or assumptions  
+            - Align frontend and backend expectations.
+      [ ] Add missing endpoints  
+            - Fill gaps discovered during testing.
+      [ ] Add missing UI elements  
+            - Anything needed for smooth gameplay.
+      [ ] Improve performance  
+            - Optimize queries, reduce payloads.
+      [ ] Add analytics or monitoring  
+            - Track usage and errors.
+      [ ] Conduct usability checks  
+            - Ensure the game feels intuitive.
+
+08. Polish & Production Hardening
+
+      [ ] Improve UI/UX  
+            - Visual polish, animations, layout improvements.
+      [ ] Add caching or optimization  
+            - Reduce backend calls where possible.
+      [ ] Add rate limiting or auth hardening  
+            - Protect endpoints from abuse.
+      [ ] Add environment configs  
+            - API URLs, feature flags, etc.
+      [ ] Add CI/CD pipeline  
+            - Automated deploys for frontend and backend.
+      [ ] Add error dashboards  
+            - CloudWatch, Sentry, or similar.
+      [ ] Run load tests  
+            - Ensure the game handles multiple players.
+      [ ] Review security posture  
+            - Validate permissions and data access.
+
+09. Launch & Post‑Launch
+
+      [ ] Deploy production version  
+            - Push the final build live.
+      [ ] Monitor logs and metrics  
+            - Watch for errors or performance issues.
+      [ ] Fix early bugs  
+            - Patch issues discovered by real users.
+      [ ] Gather user feedback  
+            - Learn what players enjoy or struggle with.
+      [ ] Plan next features  
+            - AI improvements, new modes, enhancements.
+      [ ] Schedule maintenance tasks  
+            - Keep dependencies and infrastructure updated.
