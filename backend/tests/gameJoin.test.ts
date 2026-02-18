@@ -8,6 +8,27 @@ describe('Game Creation and Player Joining', () => {
     gameStore.clear();
   });
 
+  // Helper function to create a game with multiple players
+  async function createGameWithPlayers(playerCount: number): Promise<{ gameId: string }> {
+    const game = await createGame({
+      payload: {
+        playerName: 'Player 1',
+      },
+    });
+
+    // Add additional players
+    for (let i = 2; i <= playerCount; i++) {
+      await joinGame({
+        payload: {
+          gameId: game.gameId,
+          playerName: `Player ${i}`,
+        },
+      });
+    }
+
+    return { gameId: game.gameId };
+  }
+
   it('should create a new game as Player 1', async () => {
     const result = await createGame({
       payload: {
@@ -27,14 +48,12 @@ describe('Game Creation and Player Joining', () => {
   });
 
   it('should allow Player 2 to join the game', async () => {
-    // First, create a game as Player 1
     const game = await createGame({
       payload: {
         playerName: 'Player 1',
       },
     });
 
-    // Player 2 joins
     const result = await joinGame({
       payload: {
         gameId: game.gameId,
@@ -53,24 +72,11 @@ describe('Game Creation and Player Joining', () => {
   });
 
   it('should allow Player 3 to join the game', async () => {
-    // Create a game and add Player 1 and Player 2
-    const game = await createGame({
-      payload: {
-        playerName: 'Player 1',
-      },
-    });
+    const { gameId } = await createGameWithPlayers(2);
 
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 2',
-      },
-    });
-
-    // Player 3 joins
     const result = await joinGame({
       payload: {
-        gameId: game.gameId,
+        gameId,
         playerName: 'Player 3',
       },
     });
@@ -82,31 +88,11 @@ describe('Game Creation and Player Joining', () => {
   });
 
   it('should allow Player 4 to join the game', async () => {
-    // Create a game and add Players 1-3
-    const game = await createGame({
-      payload: {
-        playerName: 'Player 1',
-      },
-    });
+    const { gameId } = await createGameWithPlayers(3);
 
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 2',
-      },
-    });
-
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 3',
-      },
-    });
-
-    // Player 4 joins
     const result = await joinGame({
       payload: {
-        gameId: game.gameId,
+        gameId,
         playerName: 'Player 4',
       },
     });
@@ -118,38 +104,11 @@ describe('Game Creation and Player Joining', () => {
   });
 
   it('should allow Player 5 to join the game', async () => {
-    // Create a game and add Players 1-4
-    const game = await createGame({
-      payload: {
-        playerName: 'Player 1',
-      },
-    });
+    const { gameId } = await createGameWithPlayers(4);
 
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 2',
-      },
-    });
-
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 3',
-      },
-    });
-
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 4',
-      },
-    });
-
-    // Player 5 joins (should be the last player allowed)
     const result = await joinGame({
       payload: {
-        gameId: game.gameId,
+        gameId,
         playerName: 'Player 5',
       },
     });
@@ -161,46 +120,12 @@ describe('Game Creation and Player Joining', () => {
   });
 
   it('should fail when Player 6 tries to join a full game', async () => {
-    // Create a game and add Players 1-5 (max capacity)
-    const game = await createGame({
-      payload: {
-        playerName: 'Player 1',
-      },
-    });
+    const { gameId } = await createGameWithPlayers(5);
 
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 2',
-      },
-    });
-
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 3',
-      },
-    });
-
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 4',
-      },
-    });
-
-    await joinGame({
-      payload: {
-        gameId: game.gameId,
-        playerName: 'Player 5',
-      },
-    });
-
-    // Player 6 tries to join (should fail)
     await expect(
       joinGame({
         payload: {
-          gameId: game.gameId,
+          gameId,
           playerName: 'Player 6',
         },
       })
