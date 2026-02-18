@@ -117,13 +117,18 @@ export function gameReducer(state: Types.Game, action: GameAction): Types.Game {
 
     // ---------- START ROUND ----------
     case "START_ROUND": {
+      const firstPlayer = state.players[0];
+      if (!firstPlayer) {
+        return state; // No players to start round
+      }
+      
       return {
         ...state,
         currentRound: {
           roundIndex: action.payload.roundIndex,
           phase: "DEALING",
-          dealerPlayerId: state.players[0].playerId,
-          turnPlayerId: state.players[0].playerId, // default; you can override
+          dealerPlayerId: firstPlayer.playerId,
+          turnPlayerId: firstPlayer.playerId, // default; you can override
           bids: [],
           trickIndex: 0,
           cardsState: {
@@ -195,9 +200,9 @@ export function gameReducer(state: Types.Game, action: GameAction): Types.Game {
                   trickIndex: 0,
                   plays: [play],
                 },
-            hands: cardsState.hands.map((h: Types.Hand) =>
+            hands: cardsState.hands.map(h =>
               h.playerId === play.playerId
-                ? { ...h, cards: h.cards.filter((c: Types.Card) => !(c.rank === play.card.rank && c.suit === play.card.suit)) }
+                ? { ...h, cards: h.cards.filter(c => !(c.rank === play.card.rank && c.suit === play.card.suit)) }
                 : h
             ),
           },
