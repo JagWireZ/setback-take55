@@ -6,8 +6,8 @@ export const increaseVersion = (state: Game): Game => {
   return {
     ...state,
     version: state.version + 1
-  }
-}
+  };
+};
 
 export const addPlayer = (state: Game, payload: {
   playerName: string;
