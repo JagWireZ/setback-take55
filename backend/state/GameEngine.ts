@@ -8,7 +8,7 @@ import * as Cards from "./engine/cards";
 import * as Scoring from "./engine/scoring";
 
 // Initial state factory
-import { generateGameId } from "./helpers/generateGameId";
+import { generateGameId } from "./engine/helpers/generateGameId";
 
 export const createInitialState = (): Types.Game => ({
   gameId: generateGameId(),
@@ -19,10 +19,11 @@ export const createInitialState = (): Types.Game => ({
   },
   players: [],
   score: {
-    history: [],
+    rounds: [],
     total: []
   },
-  round: null
+  rounds: [],
+  currentRound: null
 });
 
 // Public API surface

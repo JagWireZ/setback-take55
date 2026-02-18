@@ -11,7 +11,8 @@ import {
 // ---------------------------------------------------------
 
 const calculateBooksForPlayer = (state: Game, playerId: PlayerId): number => {
-  return state.currentRound!.cardsState.books.filter(
+  if (!state.currentRound) return 0;
+  return state.currentRound.cardsState.books.filter(
     b => b.winnerId === playerId
   ).length;
 };
@@ -47,7 +48,8 @@ const calculateTotalPoints = (bid: Bid, books: number): number => {
 // ---------------------------------------------------------
 
 export const computeRoundScores = (state: Game): RoundScore[] => {
-  const round = state.currentRound!;
+  if (!state.currentRound) return [];
+  const round = state.currentRound;
   const roundIndex = round.roundIndex;
 
   return round.bids.map(bid => {
@@ -69,6 +71,10 @@ export const computeRoundScores = (state: Game): RoundScore[] => {
 // ---------------------------------------------------------
 // Apply Round Scores to Game
 // ---------------------------------------------------------
+
+export const recordRoundScore = (state: Game, scores: RoundScore[]): Game => {
+  return applyRoundScores(state, scores);
+};
 
 export const applyRoundScores = (state: Game, scores: RoundScore[]): Game => {
   // Update cumulative totals

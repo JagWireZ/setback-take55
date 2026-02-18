@@ -2,6 +2,13 @@ import { generateLongId, generateShortId } from "./helpers/generateUuid";
 
 import { Game, Player, PlayerId } from "@shared/types/StateTypes";
 
+export const increaseVersion = (state: Game): Game => {
+  return {
+    ...state,
+    version: state.version + 1
+  };
+};
+
 export const addPlayer = (state: Game, payload: {
   playerName: string;
   type: "ai" | "human";
@@ -106,6 +113,30 @@ export const movePlayer = (
       return p;
     }),
   };
+};
+
+export const setPlayer = (
+  state: Game,
+  payload: Partial<Player> & { playerId: PlayerId }
+): Game => {
+
+  const players = state.players.map(p =>
+    p.playerId === payload.playerId
+      ? { ...p, ...payload }   // merge any provided fields
+      : p
+  );
+
+  return {
+    ...state,
+    players
+  };
+};
+
+export const convertPlayerType = (
+  state: Game,
+  payload: { playerId: PlayerId; type: "human" | "ai" }
+): Game => {
+  return convertPlayer(state, payload);
 };
 
 export const renamePlayer = (
