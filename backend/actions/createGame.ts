@@ -2,8 +2,14 @@ import { RouteContext } from "../router";
 import { initialState, gameReducer } from "../state/state";
 import * as Types from "@shared/types";
 
+// Type for game store entries
+export type GameStoreEntry = {
+  state: Types.Game;
+  playerTokens: { playerId: string; playerToken: string }[];
+};
+
 // In-memory storage for testing (would be replaced with DynamoDB in production)
-const gameStore = new Map<string, { state: Types.Game; playerTokens: { playerId: string; playerToken: string }[] }>();
+const gameStore = new Map<string, GameStoreEntry>();
 
 export async function createGame(ctx: RouteContext) {
   const { playerName, options } = ctx.payload ?? {};

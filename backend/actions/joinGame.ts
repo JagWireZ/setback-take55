@@ -1,9 +1,7 @@
 import { RouteContext } from "../router";
 import { gameReducer } from "../state/state";
-import * as Types from "@shared/types";
 import { gameStore } from "./createGame";
-
-const MAX_PLAYERS = 5;
+import { MAX_PLAYERS } from "../constants";
 
 export async function joinGame(ctx: RouteContext) {
   const { gameId, playerName } = ctx.payload ?? {};
