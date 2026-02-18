@@ -13,10 +13,11 @@ const initialState: Types.Game = {
   },
   players: [],
   score: {
-    history: [],
+    rounds: [],
     total: []
   },
-  round: null
+  rounds: [],
+  currentRound: null
 };
 
 // VERSION
@@ -80,18 +81,18 @@ const setPlayer = (
 
 // ---------- Actions ----------
 export type GameAction =
-  | { type: "INIT_GAME"; payload: { gameId: string; options: Options; players: Player[] } }
+  | { type: "INIT_GAME"; payload: { gameId: string; options: Types.Options; players: Types.Player[] } }
   | { type: "START_ROUND"; payload: { roundIndex: number; cardCount: number; direction: "down" | "up" } }
-  | { type: "SET_PHASE"; payload: { phase: PhaseName } }
-  | { type: "SET_TURN"; payload: { playerId: PlayerId } }
-  | { type: "DEAL_CARDS"; payload: { cardsState: CardState } }
-  | { type: "PLAY_CARD"; payload: { play: TrickPlay } }
-  | { type: "END_TRICK"; payload: { trick: Trick; book: Book } }
-  | { type: "UPDATE_SCORE"; payload: { roundScore: RoundScore[]; totalScore: GameScore[] } }
+  | { type: "SET_PHASE"; payload: { phase: Types.PhaseName } }
+  | { type: "SET_TURN"; payload: { playerId: Types.PlayerId } }
+  | { type: "DEAL_CARDS"; payload: { cardsState: Types.CardState } }
+  | { type: "PLAY_CARD"; payload: { play: Types.TrickPlay } }
+  | { type: "END_TRICK"; payload: { trick: Types.Trick; book: Types.Book } }
+  | { type: "UPDATE_SCORE"; payload: { roundScore: Types.RoundScore[]; totalScore: Types.GameScore[] } }
   | { type: "END_ROUND" }
   | { type: "RESET_GAME" };
 
-export function gameReducer(state: Types.Game, action: GameAction): Game {
+export function gameReducer(state: Types.Game, action: GameAction): Types.Game {
   switch (action.type) {
 
     // ---------- INIT GAME ----------
@@ -102,14 +103,15 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
         options: action.payload.options,
         players: action.payload.players,
         score: {
-          history: [],
+          rounds: [],
           total: action.payload.players.map(p => ({
             playerId: p.playerId,
             total: 0,
             possible: 0,
           })),
         },
-        round: null,
+        rounds: [],
+        currentRound: null,
       };
     }
 
@@ -117,12 +119,13 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
     case "START_ROUND": {
       return {
         ...state,
-        round: {
+        currentRound: {
           roundIndex: action.payload.roundIndex,
-          cardCount: action.payload.cardCount,
-          direction: action.payload.direction,
           phase: "DEALING",
+          dealerPlayerId: state.players[0].playerId,
           turnPlayerId: state.players[0].playerId, // default; you can override
+          bids: [],
+          trickIndex: 0,
           cardsState: {
             deck: [],
             trump: null,
@@ -130,27 +133,17 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
             currentTrick: null,
             books: [],
           },
-          score: state.players.map(p => ({
-            playerId: p.playerId,
-            roundIndex: action.payload.roundIndex,
-            bid: 0,
-            trip: false,
-            books: 0,
-            rainbow: false,
-            total: 0,
-            possible: 0,
-          })),
         },
       };
     }
 
     // ---------- SET PHASE ----------
     case "SET_PHASE": {
-      if (!state.round) return state;
+      if (!state.currentRound) return state;
       return {
         ...state,
-        round: {
-          ...state.round,
+        currentRound: {
+          ...state.currentRound,
           phase: action.payload.phase,
         },
       };
@@ -158,11 +151,11 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
 
     // ---------- SET TURN ----------
     case "SET_TURN": {
-      if (!state.round) return state;
+      if (!state.currentRound) return state;
       return {
         ...state,
-        round: {
-          ...state.round,
+        currentRound: {
+          ...state.currentRound,
           turnPlayerId: action.payload.playerId,
         },
       };
@@ -170,11 +163,11 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
 
     // ---------- DEAL CARDS ----------
     case "DEAL_CARDS": {
-      if (!state.round) return state;
+      if (!state.currentRound) return state;
       return {
         ...state,
-        round: {
-          ...state.round,
+        currentRound: {
+          ...state.currentRound,
           cardsState: action.payload.cardsState,
         },
       };
@@ -182,15 +175,15 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
 
     // ---------- PLAY CARD ----------
     case "PLAY_CARD": {
-      if (!state.round) return state;
+      if (!state.currentRound) return state;
 
       const { play } = action.payload;
-      const { cardsState } = state.round;
+      const { cardsState } = state.currentRound;
 
       return {
         ...state,
-        round: {
-          ...state.round,
+        currentRound: {
+          ...state.currentRound,
           cardsState: {
             ...cardsState,
             currentTrick: cardsState.currentTrick
@@ -202,9 +195,9 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
                   trickIndex: 0,
                   plays: [play],
                 },
-            hands: cardsState.hands.map(h =>
+            hands: cardsState.hands.map((h: Types.Hand) =>
               h.playerId === play.playerId
-                ? { ...h, cards: h.cards.filter(c => !(c.rank === play.card.rank && c.suit === play.card.suit)) }
+                ? { ...h, cards: h.cards.filter((c: Types.Card) => !(c.rank === play.card.rank && c.suit === play.card.suit)) }
                 : h
             ),
           },
@@ -214,18 +207,18 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
 
     // ---------- END TRICK ----------
     case "END_TRICK": {
-      if (!state.round) return state;
+      if (!state.currentRound) return state;
 
       const { trick, book } = action.payload;
 
       return {
         ...state,
-        round: {
-          ...state.round,
+        currentRound: {
+          ...state.currentRound,
           cardsState: {
-            ...state.round.cardsState,
+            ...state.currentRound.cardsState,
             currentTrick: null,
-            books: [...state.round.cardsState.books, book],
+            books: [...state.currentRound.cardsState.books, book],
           },
         },
       };
@@ -236,7 +229,7 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
       return {
         ...state,
         score: {
-          history: [...state.score.history, ...action.payload.roundScore],
+          rounds: [...state.score.rounds, ...action.payload.roundScore],
           total: action.payload.totalScore,
         },
       };
@@ -246,7 +239,7 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
     case "END_ROUND": {
       return {
         ...state,
-        round: null,
+        currentRound: null,
       };
     }
 
@@ -254,9 +247,9 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
     case "RESET_GAME": {
       return {
         ...state,
-        round: null,
+        currentRound: null,
         score: {
-          history: [],
+          rounds: [],
           total: state.players.map(p => ({
             playerId: p.playerId,
             total: 0,

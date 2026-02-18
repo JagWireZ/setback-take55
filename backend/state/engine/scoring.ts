@@ -70,6 +70,10 @@ export const computeRoundScores = (state: Game): RoundScore[] => {
 // Apply Round Scores to Game
 // ---------------------------------------------------------
 
+export const recordRoundScore = (state: Game, scores: RoundScore[]): Game => {
+  return applyRoundScores(state, scores);
+};
+
 export const applyRoundScores = (state: Game, scores: RoundScore[]): Game => {
   // Update cumulative totals
   const updatedTotals: GameScore[] = state.players.map(player => {
