@@ -5,9 +5,11 @@
   "type": "module",
   "main": "dist/handler.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p ../tsconfig.json",
     "clean": "rm -rf dist",
-    "dev": "tsc -w -p tsconfig.json"
+    "dev": "tsc -w -p ../tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.969.0",
@@ -16,6 +18,8 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.8",
-    "typescript": "^5.9.3"
+    "@vitest/ui": "^4.0.18",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }
