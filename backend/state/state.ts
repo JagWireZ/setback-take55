@@ -4,7 +4,7 @@ import { generateCardDeck } from "./engine/helpers/generateCardDeck";
 import { generateLongId, generateShortId } from "./engine/helpers/generateUuid";
 
 // Initial blueprint (state)
-const initialState: Types.Game = {
+export const initialState: Types.Game = {
   gameId: generateGameId(),
   version: 1,
   options: {
@@ -18,14 +18,6 @@ const initialState: Types.Game = {
   },
   round: null
 };
-
-// VERSION
-const increaseVersion = (state: Types.Game) => {
-  return {
-    ...state,
-    version: state.version + 1
-  }
-}
 
 // OPTIONS
 const setOptions = (state: Types.Game, options: Types.Options) => {
@@ -80,18 +72,21 @@ const setPlayer = (
 
 // ---------- Actions ----------
 export type GameAction =
-  | { type: "INIT_GAME"; payload: { gameId: string; options: Options; players: Player[] } }
+  | { type: "INIT_GAME"; payload: { gameId: string; options: Types.Options; players: Types.Player[] } }
   | { type: "START_ROUND"; payload: { roundIndex: number; cardCount: number; direction: "down" | "up" } }
-  | { type: "SET_PHASE"; payload: { phase: PhaseName } }
-  | { type: "SET_TURN"; payload: { playerId: PlayerId } }
-  | { type: "DEAL_CARDS"; payload: { cardsState: CardState } }
-  | { type: "PLAY_CARD"; payload: { play: TrickPlay } }
-  | { type: "END_TRICK"; payload: { trick: Trick; book: Book } }
-  | { type: "UPDATE_SCORE"; payload: { roundScore: RoundScore[]; totalScore: GameScore[] } }
+  | { type: "SET_PHASE"; payload: { phase: Types.PhaseName } }
+  | { type: "SET_TURN"; payload: { playerId: Types.PlayerId } }
+  | { type: "DEAL_CARDS"; payload: { cardsState: Types.CardState } }
+  | { type: "PLAY_CARD"; payload: { play: Types.TrickPlay } }
+  | { type: "END_TRICK"; payload: { trick: Types.Trick; book: Types.Book } }
+  | { type: "UPDATE_SCORE"; payload: { roundScore: Types.RoundScore[]; totalScore: Types.GameScore[] } }
+  | { type: "ADD_PLAYER"; payload: { playerName: string; type: "ai" | "human" } }
+  | { type: "UPDATE_PLAYER"; payload: Partial<Types.Player> & { playerId: Types.PlayerId } }
+  | { type: "SET_OPTIONS"; payload: Types.Options }
   | { type: "END_ROUND" }
   | { type: "RESET_GAME" };
 
-export function gameReducer(state: Types.Game, action: GameAction): Game {
+export function gameReducer(state: Types.Game, action: GameAction): Types.Game {
   switch (action.type) {
 
     // ---------- INIT GAME ----------
@@ -264,6 +259,21 @@ export function gameReducer(state: Types.Game, action: GameAction): Game {
           })),
         },
       };
+    }
+
+    // ---------- ADD PLAYER ----------
+    case "ADD_PLAYER": {
+      return addPlayer(state, action.payload);
+    }
+
+    // ---------- UPDATE PLAYER ----------
+    case "UPDATE_PLAYER": {
+      return setPlayer(state, action.payload);
+    }
+
+    // ---------- SET OPTIONS ----------
+    case "SET_OPTIONS": {
+      return setOptions(state, action.payload);
     }
 
     default:
